@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Lottie Gradient</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Step 1: Rename Gradients</h1>
+        <p>Select a Lottie JSON file to rename the gradient fills and strokes.</p>
+        
+        <div class="file-input-container"> 
+            <label for="fileInput">Original Lottie JSON File</label> 
+            <div class="custom-file-upload">
+                <label for="fileInput" id="fileInput-label">Choose File</label>
+                <input type="file" id="fileInput" accept=".json,.tgs">
+            </div>
+        </div>
+        
+        <p class="note">Note: Please select your original Lottie JSON file here.</p>
+        <button id="renameButton">Rename Gradients</button>
+        <div id="result"></div>
+        <button id="downloadLink" style="display: none;"></button>
+    </div>
+
+    <hr class="separator">
+
+    <div class="container">
+        <h1>Step 2: Restore Gradients</h1>
+        <p>Upload the renamed file as a reference, and the new Lottie file to restore the gradients.</p>
+        <div class="file-input-container">
+            <input type="checkbox" id="customReferenceCheckbox">
+            <label for="customReferenceCheckbox">Use custom reference file</label>
+            <p class="note">Note: The reference file is the one you renamed in Step 1. If you successfully completed Step 1, you don't necessarily need to enable this checkbox.</p>
+        </div>
+        <div class="file-input-container" id="referenceFileInputContainer">
+             <label for="referenceFileInput">Reference File (Renamed)</label> 
+            <div class="custom-file-upload">
+                <label for="referenceFileInput" id="referenceFileInput-label">Choose File</label>
+                <input type="file" id="referenceFileInput" accept=".json,.tgs">
+            </div>
+        </div>
+        <div class="file-input-container">
+            <label for="lottieFileInput">Lottie File (Edited)</label> 
+            <div class="custom-file-upload">
+                <label for="lottieFileInput" id="lottieFileInput-label">Choose File</label>
+                <input type="file" id="lottieFileInput" accept=".json,.tgs">
+            </div>
+            <p class="note">Note: Select the new Lottie file that needs its gradients restored.</p>
+        </div>
+        <button id="restoreButton">Restore Gradients</button>
+        <div id="restoreResult"></div>
+        <button id="restoreDownloadLink" style="display: none;"></button>
+    </div>
+
+    <div id="formatModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Select Output Format</h2>
+            <p>Please choose the desired file format for the fixed Lottie animation:</p>
+            <div class="format-options">
+                <button id="downloadJsonButton">.json</button>
+                <button id="downloadTgsButton">.tgs</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
