@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,29 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>Step 1: Rename Gradients</h1>
         <p>Select a Lottie JSON file to rename the gradient fills and strokes.</p>
-        
-        <div class="file-input-container"> 
-            <label for="fileInput">Original Lottie File</label> 
-            <div class="custom-file-upload">
-                <label for="fileInput" id="fileInput-label">Choose File</label>
+
+        <div class="file-input-container">
+            <label for="fileInput">Original Lottie File</label>
+            <div class="drop-zone" id="dropZone1">
+                <div class="drop-zone-content">
+                    <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="drop-text" id="fileInput-label">Drag & Drop your file here</p>
+                    <p class="drop-subtext">or click to browse</p>
+                </div>
                 <input type="file" id="fileInput" accept=".json,.tgs">
             </div>
         </div>
-        
+
         <p class="note">Note: Please select your original Lottie JSON file here.</p>
         <button id="renameButton">Rename Gradients</button>
         <div id="result"></div>
@@ -34,19 +45,38 @@
         <div class="file-input-container">
             <input type="checkbox" id="customReferenceCheckbox">
             <label for="customReferenceCheckbox">Use custom reference file</label>
-            <p class="note">Note: The reference file is the one you renamed in Step 1. If you successfully completed Step 1, you don't necessarily need to enable this checkbox.</p>
+            <p class="note">Note: The reference file is the one you renamed in Step 1. If you successfully completed
+                Step 1, you don't necessarily need to enable this checkbox.</p>
         </div>
         <div class="file-input-container" id="referenceFileInputContainer">
-             <label for="referenceFileInput">Reference File (Renamed)</label> 
-            <div class="custom-file-upload">
-                <label for="referenceFileInput" id="referenceFileInput-label">Choose File</label>
+            <label for="referenceFileInput">Reference File (Renamed)</label>
+            <div class="drop-zone" id="dropZone2">
+                <div class="drop-zone-content">
+                    <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="drop-text" id="referenceFileInput-label">Drag & Drop your file here</p>
+                    <p class="drop-subtext">or click to browse</p>
+                </div>
                 <input type="file" id="referenceFileInput" accept=".json,.tgs">
             </div>
         </div>
         <div class="file-input-container">
-            <label for="lottieFileInput">Lottie File (Edited)</label> 
-            <div class="custom-file-upload">
-                <label for="lottieFileInput" id="lottieFileInput-label">Choose File</label>
+            <label for="lottieFileInput">Lottie File (Edited)</label>
+            <div class="drop-zone" id="dropZone3">
+                <div class="drop-zone-content">
+                    <svg class="upload-icon" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="drop-text" id="lottieFileInput-label">Drag & Drop your file here</p>
+                    <p class="drop-subtext">or click to browse</p>
+                </div>
                 <input type="file" id="lottieFileInput" accept=".json,.tgs">
             </div>
             <p class="note">Note: Select the new Lottie file that needs its gradients restored.</p>

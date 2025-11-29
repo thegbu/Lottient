@@ -28,63 +28,127 @@ elements.renameButton.addEventListener('click', handleRename);
 elements.restoreButton.addEventListener('click', handleRestore);
 
 elements.downloadLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (step1ResultData) {
-        const blob = new Blob([JSON.stringify(step1ResultData)], { type: 'application/json' });
-        downloadBlob(blob, 'renamed_lottie.json');
-    }
+  e.preventDefault();
+  if (step1ResultData) {
+    const blob = new Blob([JSON.stringify(step1ResultData)], { type: 'application/json' });
+    downloadBlob(blob, 'renamed_lottie.json');
+  }
 });
 
 elements.fileInput.addEventListener('change', () => {
-    updateFileLabel(elements.fileInput, elements.fileInputLabel, 'Choose File');
+  updateFileLabel(elements.fileInput, elements.fileInputLabel, 'Drag & Drop your file here');
 });
 
 elements.referenceFileInput.addEventListener('change', () => {
-    updateFileLabel(elements.referenceFileInput, elements.referenceFileInputLabel, 'Choose File');
+  updateFileLabel(elements.referenceFileInput, elements.referenceFileInputLabel, 'Drag & Drop your file here');
 });
 
 elements.lottieFileInput.addEventListener('change', () => {
-    updateFileLabel(elements.lottieFileInput, elements.lottieFileInputLabel, 'Choose File');
+  updateFileLabel(elements.lottieFileInput, elements.lottieFileInputLabel, 'Drag & Drop your file here');
 });
 
+setupDragAndDrop(elements.fileInput, elements.fileInputLabel);
+setupDragAndDrop(elements.referenceFileInput, elements.referenceFileInputLabel);
+setupDragAndDrop(elements.lottieFileInput, elements.lottieFileInputLabel);
+
 elements.restoreDownloadLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (modifiedLottieData) {
-        elements.formatModal.classList.add('show');
-        document.body.classList.add('no-scroll');
-    }
+  e.preventDefault();
+  if (modifiedLottieData) {
+    elements.formatModal.classList.add('show');
+    document.body.classList.add('no-scroll');
+  }
 });
 
 elements.closeButton.addEventListener('click', () => {
-    elements.formatModal.classList.remove('show');
-    document.body.classList.remove('no-scroll');
+  elements.formatModal.classList.remove('show');
+  document.body.classList.remove('no-scroll');
 });
 
 window.addEventListener('click', (event) => {
-    if (event.target === elements.formatModal) {
-        elements.formatModal.classList.remove('show');
-        document.body.classList.remove('no-scroll');
-    }
+  if (event.target === elements.formatModal) {
+    elements.formatModal.classList.remove('show');
+    document.body.classList.remove('no-scroll');
+  }
 });
 
 elements.downloadJsonButton.addEventListener('click', () => {
-    downloadFile(modifiedLottieData, 'fixed.json', 'json');
-    elements.formatModal.classList.remove('show');
-    document.body.classList.remove('no-scroll');
+  downloadFile(modifiedLottieData, 'fixed.json', 'json');
+  elements.formatModal.classList.remove('show');
+  document.body.classList.remove('no-scroll');
 });
 
 elements.downloadTgsButton.addEventListener('click', () => {
-    downloadFile(modifiedLottieData, 'fixed.tgs', 'tgs');
-    elements.formatModal.classList.remove('show');
-    document.body.classList.remove('no-scroll');
+  downloadFile(modifiedLottieData, 'fixed.tgs', 'tgs');
+  elements.formatModal.classList.remove('show');
+  document.body.classList.remove('no-scroll');
 });
 
-function updateFileLabel(fileInput, labelElement, defaultText) {
-    if (fileInput.files.length > 0) {
-        labelElement.textContent = fileInput.files[0].name;
-    } else {
-        labelElement.textContent = defaultText;
+function setupDragAndDrop(fileInput, fileLabel) {
+  const dropZone = fileInput.parentElement;
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.remove('drag-over');
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.name.endsWith('.json') || file.name.endsWith('.tgs')) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        const event = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(event);
+      }
     }
+  }, false);
+}
+
+function updateFileLabel(fileInput, labelElement, defaultText) {
+  const dropZone = fileInput.parentElement;
+  const dropSubtext = dropZone.querySelector('.drop-subtext');
+  const uploadIcon = dropZone.querySelector('.upload-icon');
+
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    labelElement.textContent = file.name;
+    dropZone.classList.add('active');
+
+    // Update subtext with file size
+    const size = (file.size / 1024).toFixed(2) + ' KB';
+    dropSubtext.textContent = size;
+
+    // Change icon to checkmark
+    uploadIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+  } else {
+    labelElement.textContent = defaultText;
+    dropZone.classList.remove('active');
+    dropSubtext.textContent = 'or click to browse';
+
+    // Reset icon
+    uploadIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>';
+  }
 }
 
 function updateStep2State() {
@@ -116,21 +180,43 @@ async function handleRename() {
     step1ResultData = processingData;
     customReferenceCheckbox.checked = false;
 
+    // Create Result Card HTML
     resultDiv.innerHTML = `
-      <p>✅ Renaming complete: ${counters.gf + counters.gs} gradients processed.</p>
-      <p class="result-detail">&nbsp;&nbsp;└ Gradient Fills (gf): ${counters.gf}</p>
-      <p class="result-detail">&nbsp;&nbsp;└ Gradient Strokes (gs): ${counters.gs}</p>
-      <hr style="border: 0; border-top: 1px dashed var(--color-border); margin: 1.5rem 0 1rem;">
-      <p style="font-size: 0.95rem; color: var(--color-text-dark); font-weight: 500; margin: 0; line-height: 1.4;">
-        Download the renamed file, go to After Effects, and using the 
-        <strong>Bodymovin extension</strong>, import the renamed file into Adobe After Effects and make any changes you want to it.<br>
-        <strong>Once finished</strong>, export your project as a new <strong>.json</strong> or <strong>.tgs</strong> file, and then proceed to Step 2.
-      </p>
+      <div class="result-card">
+        <div class="result-header">
+          <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Renaming Complete!
+        </div>
+        <div class="result-stats">
+          <div class="stat-item">
+            <span class="stat-value">${counters.gf}</span>
+            <span class="stat-label">Fills</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">${counters.gs}</span>
+            <span class="stat-label">Strokes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">${counters.gf + counters.gs}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+        <p style="margin: 0 0 20px; font-size: 0.9rem; color: var(--color-text-medium); line-height: 1.5; text-align: left;">
+          Download the renamed file, go to After Effects, and using the 
+          <strong style="color: var(--color-text-dark);">Bodymovin extension</strong>, import it to make your changes.<br>
+          <strong style="color: var(--color-text-dark);">Once finished</strong>, export as a new <strong>.json</strong> or <strong>.tgs</strong> file, then proceed to Step 2.
+        </p>
+        <div class="result-actions" id="step1Actions">
+          <!-- Download button will be moved here -->
+        </div>
+      </div>
     `;
 
-
+    // Move download button into the card
+    const actionsContainer = document.getElementById('step1Actions');
     downloadLink.textContent = 'Download Renamed JSON';
     downloadLink.style.display = 'inline-block';
+    actionsContainer.appendChild(downloadLink);
 
     updateStep2State();
   } catch (error) {
@@ -161,14 +247,38 @@ async function handleRestore() {
     const modified = applyGradientsByName(lottieData, extractGradientsByName(referenceData), counters);
     modifiedLottieData = modified;
 
+    // Create Result Card HTML
     restoreResultDiv.innerHTML = `
-      <p>✅ Successfully restored ${counters.gf + counters.gs} gradients!</p>
-      <p class="result-detail">&nbsp;&nbsp;└ Gradient Fills (gf): ${counters.gf}</p>
-      <p class="result-detail">&nbsp;&nbsp;└ Gradient Strokes (gs): ${counters.gs}</p>
+      <div class="result-card">
+        <div class="result-header">
+          <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Restoration Complete!
+        </div>
+        <div class="result-stats">
+          <div class="stat-item">
+            <span class="stat-value">${counters.gf}</span>
+            <span class="stat-label">Fills</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">${counters.gs}</span>
+            <span class="stat-label">Strokes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">${counters.gf + counters.gs}</span>
+            <span class="stat-label">Restored</span>
+          </div>
+        </div>
+        <div class="result-actions" id="step2Actions">
+          <!-- Download button will be moved here -->
+        </div>
+      </div>
     `;
 
+    // Move download button into the card
+    const actionsContainer = document.getElementById('step2Actions');
     restoreDownloadLink.textContent = 'Download Fixed File';
     restoreDownloadLink.style.display = 'inline-block';
+    actionsContainer.appendChild(restoreDownloadLink);
 
   } catch (error) {
     restoreResultDiv.textContent = `Error: ${error.message}`;
@@ -187,27 +297,27 @@ async function readFileAsJson(file) {
 }
 
 function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 async function downloadFile(data, filename, format) {
-    let blob;
-    if (format === 'tgs') {
-        const jsonString = JSON.stringify(data);
-        const compressed = pako.gzip(jsonString);
-        blob = new Blob([compressed], { type: 'application/octet-stream' });
-    } else {
-        blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-    }
+  let blob;
+  if (format === 'tgs') {
+    const jsonString = JSON.stringify(data);
+    const compressed = pako.gzip(jsonString);
+    blob = new Blob([compressed], { type: 'application/octet-stream' });
+  } else {
+    blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  }
 
-    downloadBlob(blob, filename);
+  downloadBlob(blob, filename);
 }
 
 function renameGradientsRecursively(obj, usedNames, counters) {
