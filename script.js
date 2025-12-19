@@ -20,7 +20,9 @@ const elements = {
 };
 
 let step1ResultData = null;
+let step1BaseName = 'renamed_lottie';
 let modifiedLottieData = null;
+let step2BaseName = 'fixed';
 
 document.addEventListener('DOMContentLoaded', updateStep2State);
 elements.customReferenceCheckbox.addEventListener('change', updateStep2State);
@@ -31,7 +33,7 @@ elements.downloadLink.addEventListener('click', (e) => {
   e.preventDefault();
   if (step1ResultData) {
     const blob = new Blob([JSON.stringify(step1ResultData)], { type: 'application/json' });
-    downloadBlob(blob, 'renamed_lottie.json');
+    downloadBlob(blob, `${step1BaseName}_renamed.json`);
   }
 });
 
@@ -72,13 +74,13 @@ window.addEventListener('click', (event) => {
 });
 
 elements.downloadJsonButton.addEventListener('click', () => {
-  downloadFile(modifiedLottieData, 'fixed.json', 'json');
+  downloadFile(modifiedLottieData, `${step2BaseName}_fixed.json`, 'json');
   elements.formatModal.classList.remove('show');
   document.body.classList.remove('no-scroll');
 });
 
 elements.downloadTgsButton.addEventListener('click', () => {
-  downloadFile(modifiedLottieData, 'fixed.tgs', 'tgs');
+  downloadFile(modifiedLottieData, `${step2BaseName}_fixed.tgs`, 'tgs');
   elements.formatModal.classList.remove('show');
   document.body.classList.remove('no-scroll');
 });
@@ -172,6 +174,9 @@ async function handleRename() {
 
   try {
     const data = await readFileAsJson(fileInput.files[0]);
+    const originalName = fileInput.files[0].name;
+    step1BaseName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+
     const processingData = structuredClone(data);
     const usedNames = new Set();
     const counters = { gf: 0, gs: 0 };
@@ -234,6 +239,9 @@ async function handleRestore() {
 
   try {
     const lottieData = await readFileAsJson(lottieFileInput.files[0]);
+    const originalName = lottieFileInput.files[0].name;
+    step2BaseName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+
     const referenceData = customReferenceCheckbox.checked
       ? await readFileAsJson(referenceFileInput.files[0])
       : step1ResultData;
